@@ -28,3 +28,26 @@ Rename - 변수명 지정
 compress - 두 칼럼을 결합하는것
 
 -----------------------------------------------------------------------------------------------------------------
+
+DATA FUNCTION1;
+	set test.weekrev;
+	total = sum(CargoRev, pasRev);
+	AVG = MEAN(CargoRev, PasRev);
+	Start_Point2 = Compress(Origin, "f");
+	FlightID_2 = SUBSTR(FlightID, 5, 3);
+run;
+
+int(arg) -arg 값을 정수화
+log(arg) - arg 자연로그화
+Max(arg1, arg2, ....) - 결측이 아닌 arg중 최대값을 구함
+Min(arg1, arg2, ....) - 결측이 아닌 arg중 최소값을 구함
+Sum(arg1, arg2, ....) - arg값 들의 합을 구함
+Mean(arg1, arg2, ...) - arg값 들의 평균을 구함
+Put(var, format) - 숫자형식을 문자형식으로 변경
+Compress(arg, Char) - arg에 Char(default 공백) 제거
+Left(arg) - 왼쪽 공백 제거 & 왼쪽으로 정렬
+Length(arg) - arg 길이를 환산
+Substr(arg, n1, n2) -  n1자리부터 n2개 문자 선택
+Trim(arg) - Arg의 오른쪽 공백을 모두 제거
+Upcase(arg) - Arg의 모든 내용을 대문자로 변환
+Input(var, format) - 문자형식을 숫자형식으로 변경
