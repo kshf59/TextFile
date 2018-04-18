@@ -17,6 +17,8 @@ data dsa.assign;
 run;
 
 
+
+
 Keep - 선택변수 유지
 Drop - 선택변수 제거
 Format - 포맷지정
