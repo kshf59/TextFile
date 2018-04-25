@@ -1,0 +1,56 @@
+libname sql "C:\Users\admin\Desktop\DSA 4기\행복중심생협 데이터\데이터";                                                                
+                                                                                                                                        
+/* 카드 수신여부 and 포인트 사용 내역*/
+                                                                                                                                       
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table credit1 as                                                                                                         
+        select CREDIT_CAN_USE_YN as ccun '카드사용여부'                                                                                 
+        , USE_CREDIT as uc '포인트사용여부'                                                                                             
+        , SMS_YN as sy 'SNS확인여부'                                                                                                    
+        from Sql.Cust                                                                                                                   
+        where USE_CREDIT>0 and SMS_YN='Y'                                                                                               
+;                                                                                                                                       
+quit; 
+                                                                                                                                 
+
+/* 2015년 이후에 한 번 이상 거래한 사람*/                                                                                                                                        
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table sale as                                                                                                            
+        select REG_DATE                                                                                                                 
+        ,BUY_CNT                                                                                                                        
+        from Sql.Cust                                                                                                                   
+                                                                                                                                        
+         where REG_DATE>'20150101' and BUY_CNT>1                                                                                        
+        order by REG_DATE                                                                                                               
+;                                                                                                                                       
+quit;   
+
+/*배송센터코드와 활동매장코드를 이용한 주거지 분석*/
+
+proc sql;                                                                                                                               
+        create table directbuy as                                                                                                       
+        select ACTIVE_SHOP_CD as it '활동매장코드'                                                                                      
+                ,CENTER_CD as ct '배송지역코드'                                                                                         
+        from Sql.Cust                                                                                                                   
+        where ACTIVE_SHOP_CD = CENTER_CD                                                                                                
+        group by ACTIVE_SHOP_CD                                                                                                         
+;                                                                                                                                       
+quit;                                                                                                                                   
+      
+
+
+/*웹 아이디를 DELETE 한 사람들에게 제품소개*/
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table use3 as                                                                                                            
+        select CREATE_ID as it '생성이름', DEL_YN as yn '삭제여부'                                                                      
+        from Sql.cust                                                                                                                   
+        where DEL_YN='Y' and CREATE_ID^='000000000'                                                                                     
+        group by CREATE_ID                                                                                                              
+                                                                                                                                        
+;                                                                                                                                       
+quit; 
+
+
