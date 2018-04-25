@@ -1,0 +1,17 @@
+﻿proc sql outobs= 300;
+select distinct a.client_no, (2018 - input(substr(birth_date,1,4),4.) + 1) as age, sum(buy_amt) as buy,
+		 case when 10 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 20 then "10대"
+				when 20 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 30 then "20대"
+				when 30 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 40 then "30대"
+				when 40 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 50 then "40대"
+				when 50 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 60 then "50대"
+				when 60 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 70 then "60대"
+				when (2018 - input(substr(birth_date,1,4),4.) + 1) >= 70 then " 60대 이상"
+				end as age_g "연령대"
+from dsab.cust as a, dsab.tr_1 as b
+where a.client_no = b.client_no
+group by a.client_no, age
+having age BETWEEN 10 AND 90
+;
+quit
+;

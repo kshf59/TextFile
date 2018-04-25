@@ -1,0 +1,43 @@
+﻿2013년 고객수
+proc sql;
+select COUNT(DISTINCT CLIENT_NO) 
+from dsab.tr_1
+where sale_date like "2013%"
+;
+quit;
+
+2014년 고객수
+proc sql;
+select COUNT(DISTINCT CLIENT_NO) 
+from dsab.tr_1
+where sale_date like "2014%"
+;
+quit;
+19529명
+
+2015년 고객수
+proc sql;
+select COUNT(DISTINCT CLIENT_NO) 
+from dsab.tr_1
+where sale_date like "2015%"
+;
+quit;
+20478명
+
+2016년 고객수
+proc sql;
+select COUNT(DISTINCT CLIENT_NO) 
+from dsab.tr_1
+where sale_date like "2016%"
+;
+quit;
+19407명
+
+2017년 고객수
+proc sql;
+select COUNT(DISTINCT CLIENT_NO) 
+from dsab.tr_2
+where sale_date like "2017%"
+;
+quit;
+15001명

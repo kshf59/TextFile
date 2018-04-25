@@ -1,0 +1,34 @@
+﻿2013년 10월 ~ 2016년 12월 까지의 월별총구매금액
+proc sql;
+select substr(sale_date,1,6) as a, 
+         sum(buy_amt) format=12.0
+from dsab.tr_1
+group by a
+having a BETWEEN "201310" and "201612"
+;
+quit;
+
+2017년 4월 ~ 10월 까지 월별총구매금액
+proc sql;
+select substr(sale_date,1,6) as a, 
+         sum(buy_amt) format=12.0
+from dsab.tr_2
+group by a
+having a BETWEEN "201701" and "201712"
+;
+quit
+
+2017년 1월, 9월,10월 (9월, 10월은 위의 결과값하고 더해야함)
+proc sql;
+select substr(sale_date,6,2) as a, 
+         sum(buy_amt) format=12.0
+from dsab.tr_2
+group by a
+having a BETWEEN "01" and "12"
+;
+quit
+
+
+
+
+

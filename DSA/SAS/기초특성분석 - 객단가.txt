@@ -1,0 +1,47 @@
+﻿2013년 객단가
+proc sql;
+select round((sum(buy_amt) / COUNT(DISTINCT CLIENT_NO))) 
+from dsab.tr_1
+where sale_date like "2013%"
+;
+quit;
+193,238원
+
+2014년 객단가
+proc sql;
+select round((sum(buy_amt) / COUNT(DISTINCT CLIENT_NO))) 
+from dsab.tr_1
+where sale_date like "2014%"
+;
+quit;
+572,612원
+
+2015년 객단가
+proc sql;
+select round((sum(buy_amt) / COUNT(DISTINCT CLIENT_NO))) 
+from dsab.tr_1
+where sale_date like "2015%"
+;
+quit;
+664,363원
+
+2016년 객단가
+proc sql;
+select round((sum(buy_amt) / COUNT(DISTINCT CLIENT_NO))) 
+from dsab.tr_1
+where sale_date like "2016%"
+;
+quit;
+664,161원
+
+2017년 객단가
+proc sql;
+select round((sum(buy_amt) / COUNT(DISTINCT CLIENT_NO))) 
+from dsab.tr_2
+where sale_date like "2017%"
+;
+quit;
+486,725원
+
+
+

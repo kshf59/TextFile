@@ -1,0 +1,55 @@
+﻿proc sql;
+select sum(buy_tot_amt)  format=10.0
+from dsad.cust
+where buy_tot_amt <> 0
+;
+quit;
+6,784,443,780원
+
+2013년 구매금액
+proc sql;
+select sum(buy_amt)  format=10.0
+from dsad.tr_1
+where sale_date like "2013%"
+;
+quit;
+87,730,090원
+
+2014년 구매금액
+proc sql;
+select sum(buy_amt)  format=12.0
+from dsad.tr_1
+where sale_date like "2014%"
+;
+quit;
+1,182,549,124원
+
+2015년 구매금액
+proc sql;
+select sum(buy_amt)  format=12.0
+from dsad.tr_1
+where sale_date like "2015%"
+;
+quit;
+13,606,864,870원
+
+2016년 구매금액
+proc sql;
+select sum(buy_amt)  format=12.0
+from dsad.tr_1
+where sale_date like "2016%"
+;
+quit;
+12,889,363,955원
+
+2017년 구매금액
+proc sql;
+select sum(buy_amt)  format=12.0
+from dsad.tr_2
+where sale_date like "2017%"
+;
+quit;
+7,301,365,710원
+
+
+

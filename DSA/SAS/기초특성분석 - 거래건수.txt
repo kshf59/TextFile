@@ -1,0 +1,56 @@
+﻿2013년 - 거래건수
+proc sql;
+select distinct count(client_no)
+from dsad.tr_1
+where sale_date like "2013%"
+;
+quit;
+19860명
+
+2014년 - 거래건수
+proc sql;
+select distinct count(client_no)
+from dsad.tr_1
+where sale_date like "2014%"
+;
+quit;
+1806719명
+
+2015년 - 거래건수
+proc sql;
+select distinct count(client_no)
+from dsad.tr_1
+where sale_date like "2015%"
+;
+quit;
+2078575명
+
+2016년 - 거래건수
+proc sql;
+select distinct count(client_no)
+from dsad.tr_1
+where sale_date like "2016%"
+;
+quit;
+1911590명
+
+2017년 - 거래건수
+proc sql;
+select distinct count(client_no)
+from dsad.tr_2
+where sale_date like "2017%"
+;
+quit;
+1063750명
+******* 2017년은 1월 부터 10월 까지 ***********
+
+
+
+
+
+
+
+
+
+
+
