@@ -1,0 +1,24 @@
+libname DSAB 'E:\DSA 4기\SQL 학습\행복중심생협 데이터\데이터';
+
+
+
+/*2-1. 매장별 거래건수*/
+
+proc sql inobs=100;
+	create table DSAB.shop_sale_cnt as
+	select distinct shop_cd, count(sale_date) as sale_count
+	from DSAB.tr
+	group by shop_cd
+;
+quit;
+
+
+/*2-2. 고객별 거래건수*/
+
+proc sql inobs=100;
+	create table DSAB.cust_sale_cnt as
+	select distinct client_no, sale_date, count(sale_date) as sale_count
+	from DSAB.tr
+	group by client_no
+;
+quit;

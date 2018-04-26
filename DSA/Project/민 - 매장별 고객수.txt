@@ -1,0 +1,13 @@
+libname DSAB 'E:\DSA 4기\SQL 학습\행복중심생협 데이터\데이터';
+
+/*1. 매장별 고객 수*/
+
+proc sql inobs=100;
+	create table DSAB.cust_cnt as 
+	select distinct shop_cd
+						, count(client_no) as count
+	from DSAB.tr
+	group by shop_cd
+;
+quit;
+

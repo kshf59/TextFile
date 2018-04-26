@@ -1,0 +1,12 @@
+libname sql "C:\Users\admin\Desktop\DSA 4기\행복중심생협 데이터\데이터";                                                                
+/*배송센터코드와 활동매장코드를 이용한 주거지 분석*/
+
+proc sql;                                                                                                                               
+        create table directbuy as                                                                                                       
+        select ACTIVE_SHOP_CD as it '활동매장코드'                                                                                      
+                ,CENTER_CD as ct '배송지역코드'                                                                                         
+        from Sql.Cust                                                                                                                   
+        where ACTIVE_SHOP_CD = CENTER_CD                                                                                                
+        group by ACTIVE_SHOP_CD                                                                                                         
+;                                                                                                                                       
+quit;                                                                                                                                   

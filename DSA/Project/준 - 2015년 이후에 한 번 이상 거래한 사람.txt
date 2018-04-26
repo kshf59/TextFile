@@ -1,0 +1,13 @@
+libname sql "C:\Users\admin\Desktop\DSA 4기\행복중심생협 데이터\데이터";                                                                
+/* 2015년 이후에 한 번 이상 거래한 사람*/                                                                                                                                        
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table sale as                                                                                                            
+        select REG_DATE                                                                                                                 
+        ,BUY_CNT                                                                                                                        
+        from Sql.Cust                                                                                                                   
+                                                                                                                                        
+         where REG_DATE>'20150101' and BUY_CNT>1                                                                                        
+        order by REG_DATE                                                                                                               
+;                                                                                                                                       
+quit;   

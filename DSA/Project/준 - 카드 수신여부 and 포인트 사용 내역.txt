@@ -1,0 +1,15 @@
+libname sql "C:\Users\admin\Desktop\DSA 4기\행복중심생협 데이터\데이터";                                                                
+                                                                                                                                        
+/* 카드 수신여부 and 포인트 사용 내역*/
+                                                                                                                                       
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table credit1 as                                                                                                         
+        select CREDIT_CAN_USE_YN as ccun '카드사용여부'                                                                                 
+        , USE_CREDIT as uc '포인트사용여부'                                                                                             
+        , SMS_YN as sy 'SNS확인여부'                                                                                                    
+        from Sql.Cust                                                                                                                   
+        where USE_CREDIT>0 and SMS_YN='Y'                                                                                               
+;                                                                                                                                       
+quit; 
+                                                                                                                                 

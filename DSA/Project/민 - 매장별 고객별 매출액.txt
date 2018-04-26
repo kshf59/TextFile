@@ -1,0 +1,23 @@
+libname DSAB 'E:\DSA 4기\SQL 학습\행복중심생협 데이터\데이터';
+
+
+/*3-2. 고객별 매출액*/
+
+proc sql inobs=100;
+	create table DSAB.cust_tot_amt as
+		select client_no, sum(buy_amt) as total_amt
+	from DSAB.tr
+	group by client_no
+;
+quit;
+
+/*3-3. 매장별 고객별 매출액*/
+
+proc sql inobs=100;
+	create table DSAB.tot_amt as
+		select shop_cd, client_no, sum(buy_amt) as total_amt
+	from DSAB.tr
+	group by shop_cd, client_no
+;
+quit;
+

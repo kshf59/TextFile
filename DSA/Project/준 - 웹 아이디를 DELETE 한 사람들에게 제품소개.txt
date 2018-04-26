@@ -1,0 +1,13 @@
+libname sql "C:\Users\admin\Desktop\DSA 4기\행복중심생협 데이터\데이터";                                                                
+/*웹 아이디를 DELETE 한 사람들에게 제품소개*/
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table use3 as                                                                                                            
+        select CREATE_ID as it '생성이름', DEL_YN as yn '삭제여부'                                                                      
+        from Sql.cust                                                                                                                   
+        where DEL_YN='Y' and CREATE_ID^='000000000'                                                                                     
+        group by CREATE_ID                                                                                                                                                                                                                                               
+;                                                                                                                                       
+quit; 
+
+
