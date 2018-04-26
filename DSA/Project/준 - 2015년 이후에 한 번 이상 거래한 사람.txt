@@ -1,13 +1,37 @@
 libname sql "C:\Users\admin\Desktop\DSA 4기\행복중심생협 데이터\데이터";                                                                
 /* 2015년 이후에 한 번 이상 거래한 사람*/                                                                                                                                        
                                                                                                                                         
-proc sql;                                                                                                                               
-        create table sale as                                                                                                            
-        select REG_DATE                                                                                                                 
-        ,BUY_CNT                                                                                                                        
-        from Sql.Cust                                                                                                                   
-                                                                                                                                        
-         where REG_DATE>'20150101' and BUY_CNT>1                                                                                        
-        order by REG_DATE                                                                                                               
-;                                                                                                                                       
-quit;   
+2015년 ~ 2016
+proc sql;
+create table dsab.store as
+select a.client_no, shop_nm, del_yn, substr(sale_date,1,4) as year
+from dsab.cust as a, dsab.tr_1 as b, dsab.store_data as c
+where a.client_no = b.client_no and b.shop_cd = c.shop_cd
+;
+quit; 
+------------------------------------------------------------------------------------------------------------
+proc sql;
+select distinct count(client_no)
+from dsab.store
+where del_yn <> "Y" and year >= "2015"
+;
+quit; 
+2838021명
+---------------------------------------------------------------------------------------------------------
+2017년
+proc sql;
+create table dsab.store2 as
+select a.client_no, shop_nm, del_yn, substr(sale_date,1,4) as year
+from dsab.cust as a, dsab.tr_2 as b, dsab.store_data as c
+where a.client_no = b.client_no and b.shop_cd = c.shop_cd
+;
+quit; 
+------------------------------------------------------------------------------------------------------------
+proc sql;
+select distinct count(client_no)
+from dsab.store2
+where del_yn <> "Y"
+;
+quit; 
+842209명
+---------------------------------------------------------------------------------------------------------
