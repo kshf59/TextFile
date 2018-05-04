@@ -1,0 +1,112 @@
+libname dsab "C:\Users\admin\Desktop\DSA 4기\행복중심생협 데이터\데이터";                                                               
+                                                                                                                                        
+                                                                                                                                        
+/* 매장별 고객수 */                                                                                                                     
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table shop_cust_cnt                                                                                                      
+        select distinct shop_cd                                                                                                         
+        , count(client_no) as cust_cnt                                                                                                  
+        from dsab.cust                                                                                                                  
+        group by shop_cd                                                                                                                
+;                                                                                                                                       
+quit;                                                                                                                                   
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+/*매장별 거래횟수*/                                                                                                                     
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table shop_trd_cnt                                                                                                       
+        select distinct shop_cd                                                                                                         
+        , count(sale_date) as trd_cnt                                                                                                   
+        from dsab.tr_1                                                                                                                  
+        group by shop_cd                                                                                                                
+;                                                                                                                                       
+quit;                                                                                                                                   
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+/* 매장별 매출액 */                                                                                                                     
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table shop_tot_amt as                                                                                                    
+        select distinct shop_cd                                                                                                         
+        , sum(buy_amt) as tot_amt                                                                                                       
+        from dsab.tr_1                                                                                                                  
+        group by shop_cd                                                                                                                
+ ;                                                                                                                                      
+quit;                                                                                                                                   
+                                                                                                                                        
+                                                                                                                                        
+ /* 매장별 구매횟수*/                                                                                                                   
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table shop_buy_cnt as                                                                                                    
+        select distinct shop_cd                                                                                                         
+        , sum(buy_cnt) as buy cnt                                                                                                       
+        from dsab.cust                                                                                                                  
+        group by shop_cd                                                                                                                
+;                                                                                                                                       
+quit;                                                                                                                                   
+                                                                                                                                        
+/* 매장별 구매 수량 */                                                                                                                  
+                                                                                                                                        
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table shop_buy_qty as                                                                                                    
+        select shop_cd                                                                                                                  
+                ,sum(buy_qty) as buy_qty                                                                                                
+        from dsab.a                                                                                                                     
+        group by shop_cd                                                                                                                
+;                                                                                                                                       
+quit;                                                                                                                                   
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+/* 매장별 카드 사용포인트*/   '카드 사용 포인트가 0원인 매장에 매장에서 카드포인트 ** 이상 사용 시 이벤트'                              
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table shop_use_card_point as                                                                                             
+        select distinct shop_cd                                                                                                         
+        , sum(use_credit) as  use_card_point                                                                                            
+        from dsab.tr_1                                                                                                                  
+        group by shop_cd                                                                                                                
+;                                                                                                                                       
+quit;   
+ 
+
+/* 사용가능한 매장코드 */                                                                                                               
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table can_use_shop as                                                                                                    
+        select distinct shop_cd                                                                                                         
+        , able_yn as use_Y                                                                                                              
+        from dsab.cust                                                                                                                  
+        group by shop_cd                                                                                                                
+        having use_Y like 'Y'                                                                                                           
+;                                                                                                                                       
+quit;                                                                                                                                   
+                                                                                                                                        
+                                                                                                                                        
+                                                                                                                                        
+/* 매장당 연도별 매출액 */                      /* 2017년은 tr_2테이블 활용 */                                                                                           
+                                                                                                                                        
+proc sql;                                                                                                                               
+        create table shop_****_tot_amt as                                                                                               
+        select distinct shop_cd                                                                                                         
+        , sum(buy_amt) format = 12.0                                                                                                    
+        , substr(sale_date,1,4) as year                                                                                                 
+        from dsab.tr_1                                                                                                                  
+        group by shop_cd, year                                                                                                          
+        having year like '****'                                                                                                         
+        ;                                                                                                                               
+quit;                                                                                                                                   
+       
+
+
+
+
+                                                                                                                                  
+      

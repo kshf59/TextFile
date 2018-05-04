@@ -1,0 +1,59 @@
+/*tr1, tr2 합치기*/
+data dsab.tr_total;
+set dsab.TR_1 dsab.TR_2;
+run;
+---------------------------------------------------------------------------------------------------------------
+/*연도별 잘팔린 물건*/
+proc sql;
+create table dsab.test9 as
+select input(substr(save_date,1,4),4.) as year, goods_ful_nm, count(*) as count
+from dsab.goods_new as a, dsab.tr_total as b
+where a.goods_cd = b.goods_cd 
+group by year, goods_ful_nm
+having year between 2013 and 2017 and NOT goods_ful_nm LIKE "%(중단)%" 
+		  and NOT goods_ful_nm LIKE "%(가입선물)%"
+		  and NOT goods_ful_nm LIKE "%(시식)%"
+		  and NOT goods_ful_nm LIKE "%(증정)%"
+order by year, count desc
+;
+quit;
+---------------------------------------------------------------------------------------------------------------
+/*2013년*/
+proc sql outobs=5;
+select goods_ful_nm, count
+from dsab.test9
+where year=2013
+;
+quit;
+
+/*2014년*/
+proc sql outobs=5;
+select goods_ful_nm, count
+from dsab.test9
+where year=2013
+;
+quit;
+
+/*2015년*/
+proc sql outobs=5;
+select goods_ful_nm, count
+from dsab.test9
+where year=2013
+;
+quit;
+
+/*2016년*/
+proc sql outobs=5;
+select goods_ful_nm, count
+from dsab.test9
+where year=2013
+;
+quit;
+
+/*2017년*/
+proc sql outobs=5;
+select goods_ful_nm, count
+from dsab.test9
+where year=2013
+;
+quit;

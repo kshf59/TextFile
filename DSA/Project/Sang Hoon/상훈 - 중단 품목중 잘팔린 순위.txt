@@ -1,0 +1,9 @@
+proc sql outobs=10;
+select goods_ful_nm, count(*) as count
+from dsab.goods_new as a, dsab.tr_total as b
+where a.goods_cd = b.goods_cd 
+group by goods_ful_nm
+having goods_ful_nm like "%(Áß´Ü)%"
+order by count desc
+;
+quit;

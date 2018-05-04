@@ -1,0 +1,26 @@
+/* 2013년  ~ 2017년  가장 많이 팔린 품목1 */
+proc sql;
+create table dsab.shop as
+select client_no, a.goods_cd, goods_ful_nm, buy_qty, buy_amt
+from dsab.goods_new as a, dsab.tr_total as b
+where a.goods_cd = b.goods_cd
+;
+quit;
+
+---------------------------------------------------------------------------------------------------------
+/* 2013년  ~ 2017년 가장 많이 팔린 품목2 */
+proc sql outobs=30;
+create table dsab.test as
+select goods_ful_nm, sum(buy_qty) as sum
+from dsab.shop
+group by goods_ful_nm
+having NOT goods_ful_nm LIKE "%(중단)%" 
+		  and NOT goods_ful_nm LIKE "%(가입선물)%"
+		  and NOT goods_ful_nm LIKE "%(시식)%"
+		  and NOT goods_ful_nm LIKE "%(증정)%"
+		  and sum > 0
+order by sum desc
+;
+quit;
+
+

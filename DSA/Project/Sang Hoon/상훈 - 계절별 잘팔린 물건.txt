@@ -1,0 +1,138 @@
+/*봄1*/
+proc sql;
+create table dsab.test4 as
+select input(substr(save_date,5,2),4.) as season, goods_ful_nm, count(*) as count
+from dsab.goods_new as a, dsab.tr_total as b
+where a.goods_cd = b.goods_cd 
+group by season, goods_ful_nm
+having season between 3 and 5 and not goods_ful_nm like "%(가입선물)%"
+		 and NOT goods_ful_nm LIKE "%(시식)%"
+		 and NOT goods_ful_nm LIKE "%(증정)%"
+		 and NOT goods_ful_nm LIKE "%(중단)%"
+order by count desc
+;
+quit;
+---------------------------------------------------------------------------------------------------------------
+/*봄2*/
+proc sql;
+create table dsab.test4_1 as
+select goods_ful_nm, count
+from dsab.test4
+order by count desc
+;
+quit;
+
+/*봄3*/
+proc sql outobs=5;
+create table dsab.test4_2 as
+select goods_ful_nm, sum(count) as sum
+from dsab.test4_1
+group by goods_ful_nm
+order by sum desc
+;
+quit;
+---------------------------------------------------------------------------------------------------------------
+/*여름*/
+proc sql;
+create table dsab.test5 as
+select input(substr(save_date,5,2),4.) as season, goods_ful_nm, count(*) as count
+from dsab.goods_new as a, dsab.tr_total as b
+where a.goods_cd = b.goods_cd 
+group by season, goods_ful_nm
+having season between 6 and 8 and not goods_ful_nm like "%(가입선물)%"
+		 and NOT goods_ful_nm LIKE "%(시식)%"
+		 and NOT goods_ful_nm LIKE "%(증정)%"
+		 and NOT goods_ful_nm LIKE "%(중단)%"
+order by count desc
+;
+quit;
+
+---------------------------------------------------------------------------------------------------------------
+/*여름2*/
+proc sql;
+create table dsab.test5_1 as
+select goods_ful_nm, count
+from dsab.test5
+order by count desc
+;
+quit;
+
+/*여름3*/
+proc sql outobs=5;
+create table dsab.test5_2 as
+select goods_ful_nm, sum(count) as sum
+from dsab.test5_1
+group by goods_ful_nm
+order by sum desc
+;
+quit;
+---------------------------------------------------------------------------------------------------------------
+/*가을*/
+proc sql;
+create table dsab.test6 as
+select input(substr(save_date,5,2),4.) as season, goods_ful_nm, count(*) as count
+from dsab.goods_new as a, dsab.tr_total as b
+where a.goods_cd = b.goods_cd 
+group by season, goods_ful_nm
+having season between 9 and 11 and not goods_ful_nm like "%(가입선물)%"
+		 and NOT goods_ful_nm LIKE "%(시식)%"
+		 and NOT goods_ful_nm LIKE "%(증정)%"
+		 and NOT goods_ful_nm LIKE "%(중단)%"
+order by count desc
+;
+quit;
+
+---------------------------------------------------------------------------------------------------------------
+/*가을2*/
+proc sql;
+create table dsab.test6_1 as
+select goods_ful_nm, count
+from dsab.test6
+order by count desc
+;
+quit;
+
+/*가을3*/
+proc sql outobs=5;
+create table dsab.test6_2 as
+select goods_ful_nm, sum(count) as sum
+from dsab.test6_1
+group by goods_ful_nm
+order by sum desc
+;
+quit;
+---------------------------------------------------------------------------------------------------------------
+/*겨울*/
+proc sql;
+create table dsab.test7 as
+select input(substr(save_date,5,2),4.) as season, goods_ful_nm, count(*) as count
+from dsab.goods_new as a, dsab.tr_total as b
+where a.goods_cd = b.goods_cd 
+group by season, goods_ful_nm
+having season=1 or season=2 or season=12 and not goods_ful_nm like "%(가입선물)%"
+		 and NOT goods_ful_nm LIKE "%(시식)%"
+		 and NOT goods_ful_nm LIKE "%(증정)%"
+		 and NOT goods_ful_nm LIKE "%(중단)%"
+order by count desc
+;
+quit;
+
+---------------------------------------------------------------------------------------------------------------
+/*겨울2*/
+proc sql;
+create table dsab.test7_1 as
+select goods_ful_nm, count
+from dsab.test7
+order by count desc
+;
+quit;
+
+/*겨울3*/
+proc sql outobs=5;
+create table dsab.test7_2 as
+select goods_ful_nm, sum(count) as sum
+from dsab.test7_1
+group by goods_ful_nm
+order by sum desc
+;
+quit;

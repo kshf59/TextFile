@@ -1,0 +1,614 @@
+libname DSAB "E:\DSA 4기\SQL 학습\행복중심생협 데이터\데이터";
+
+/*1. 매장별 고객 수*/
+
+proc sql;
+	create table DSAB.cust_cnt as 
+	select distinct shop_cd
+						, count(client_no) as count
+	from DSAB.tr
+	group by shop_cd
+;
+quit;
+
+
+/*2-1. 매장별 거래건수*/
+
+proc sql;
+	create table DSAB.shop_sale_cnt as
+	select distinct shop_cd, count(sale_date) as sale_count
+	from DSAB.tr
+	group by shop_cd
+;
+quit;
+
+
+/*cust 정제*/
+proc sql;	
+	create table DSAB.cust2 as
+		select shop_cd, client_no, birth_date 
+					, SMS_YN, adj_credit, sale_credit, use_credit, rem_credit, sum_credit, credit_can_use_YN
+					, buy_cnt, rtn_cnt, reg_date as last_date, last_trade_date as first_date
+					, active_shop_cd, fund_apl_YN, del_YN, create_id, create_date, update_id, update_date
+					, buy_tot_amt, del_date, fund_AB, pay_AB, credit_AB, able_YN, pay_ramt
+					, uniondues_ramt, fund_ramt, fund_tamt, center_cd
+	from DSAB.cust
+;
+quit;
+
+
+/*TR 정제*/
+proc sql;
+	create table DSAB.TR2 as
+		select *
+					,mdy(input(substr(sale_date,5,2),2.),
+											input(substr(sale_date,7,2),2.),
+											input(substr(sale_date,1,4),4.)) as sdt format yymmdd10.
+	from DSAB.TR
+;
+quit;
+
+/*2-2. 고객별 거래건수*/
+
+proc sql outobs=10;
+	create table DSAB.cust_sale_cnt as
+	select distinct client_no, count(sale_date) as sale_count
+	from DSAB.tr2
+	group by client_no
+	order by sale_count desc 
+;
+quit;
+
+
+
+/*3-1. 매장별 매출액*/
+
+proc sql outobs=10;
+	create table DSAB.shop_tot_amt as
+		select shop_cd, sum(buy_amt) as total_amt
+	from DSAB.tr2
+	group by shop_cd
+;
+quit;
+
+/*고객별 매출액*/
+proc sql;
+	create table DSAB.cust_tot_amt as
+		select client_no, sum(buy_amt) as total_amt
+	from DSAB.tr2
+	group by client_no
+	order by total_amt desc
+;
+quit;
+/*총매출액*/
+proc sql;
+	create table DSAB.tot_amt as
+		select sum(total_amt) as tot_amt
+	from DSAB.cust_tot_amt
+;
+quit;
+/*파레토*/
+data DSAB.pareto;
+	set DSAB.cust_tot_amt;
+		n= _n_;
+		cum_amt + total_amt;
+		cust_pct = round(n/1311, 0.001) * 100;
+		amt_pct = round(cum_amt/489489120, 0.001) *100;
+		pareto = cust_pct + amt_pct;
+		label 	n = "누적고객수" 
+			cust_pct = "누적고객비율"
+			cum_amt = "누적매출"
+			amt_pct = "누적매출비율"
+			pareto = "파레토";
+run;
+
+proc univariate data=DSAB.pareto;
+	var amt_pct;
+	output out = DSAB.pareto_graph pctlpre = p_ pctlpts = 0 to 100 by 1;
+run;
+proc univariate data=DSAB.pareto;
+	var total_amt;
+	output out = DSAB.amt_graph pctlpre = p_ pctlpts = 0 to 100 by 1;
+run;
+
+
+
+
+
+/*3-3. 매장별 고객별 매출액*/
+
+proc sql inobs=100;
+	create table DSAB.tot_amt as
+		select shop_cd, client_no, sum(buy_amt) as total_amt
+	from DSAB.tr
+	group by shop_cd, client_no
+;
+quit;
+
+/*4. 매장별 객단가*/
+
+proc sql ;
+	create table DSAB.avg_price as
+		select goods_cd, avg(sale_price) as avg_sale_price
+	from DSAB.goods_new
+;
+quit;
+
+proc sql inobs=100;
+	create table DSAB.avg_Qty as
+		select shop_cd, goods_cd, sum(buy_qty)/count(distinct client_no) as avg_cust_qty
+	from DSAB.tr
+;
+quit;
+
+proc sql;
+	create table join as
+		select distinct a1.avg_sale_price * a2.avg_cust_qty as cust_trans format 10.2
+	from DSAB.avg_price as a1
+			,DSAB.avg_Qty as a2
+;
+quit;
+
+/*고객별 상품선호도*/
+
+proc sql;
+	create table goods_like as
+		select client_no, goods_cd, count(goods_cd) as goods_cnt
+	from DSAB.tr
+	group by client_no, goods_cd
+	having goods_cnt ^=1
+;
+quit; 
+
+/*요일선호*/
+proc sql;
+	create table DSAB.tr_goods_join as
+		select a1.client_no, a2.sale_price, sdt 
+	from DSAB.tr2 as a1
+	left join 
+	(select goods_cd, sale_price from DSAB.goods_new) as a2
+	on a1.goods_cd = a2.goods_cd
+;
+quit;
+proc sql;
+	create table DSAB.week_like as
+		select 
+			 case when weekday(sdt) =1 then '일요일'
+						when weekday(sdt) =2 then '월요일'
+						when weekday(sdt) =3 then '화요일'
+						when weekday(sdt) =4 then '수요일'
+						when weekday(sdt) =5 then '목요일'
+						when weekday(sdt) =6 then '금요일'
+						when weekday(sdt) =7 then '토요일'
+				end as week format = $6.
+			,count(client_no) as week_cnt
+			,sum(sale_price) as week_amt
+	from DSAB.tr_goods_join
+	group by week
+;
+quit;
+
+proc print data=DSAB.week_like;
+run;
+
+
+/*최근 매장이용일 &경과일,월*/
+
+proc sql;
+	create table DSAB.cust_lastshop as
+		select distinct client_no, sale_date
+					,intck('day', sdt, max(sdt)) as last_day
+					,intck('month',sdt, max(sdt)) as last_month
+	from DSAB.tr2
+;
+quit;
+/*회원구분*/
+/*1개월 이내, 3개월 이내, 6개월 이내,1년 이내, 1년 이상*/
+
+/*년도별 고객별 상품구매갯수*/
+
+proc sql;
+	create table gumae_cnt as 
+		select client_no, sum(buy_qty) as cnt '고객별상품구매갯수'
+	from DSAB.TR2
+	group by client_no, year
+;
+quit;
+
+
+/*년도별 고객수*/
+proc sql ;
+	create table DSAB.year_cust as
+		select input(substr(sale_date,1,4),4.) as year
+					,count(client_no) as cust_cnt
+	from DSAB.TR2
+	group by year
+;
+quit;
+
+/*년도별 매출액*/
+proc sql ;
+	create table DSAB.year_total_amt as
+		select input(substr(sale_date,1,4),4.) as year
+					,sum(buy_amt) as year_amt
+	from DSAB.TR2
+	group by year
+;
+quit;
+
+
+proc print data=DSAB.year_total_amt;
+run;
+
+/*월별 고객수*/
+proc sql;
+	create table DSAB.month_cust as
+		select input(substr(save_date,1,4),4.) as year
+					,input(substr(save_date,5,2),2.) as month
+					,count(client_no) as cust_cnt
+	from DSAB.TR2
+	group by year, month
+;
+quit;
+
+/*연도별 고객구매액--구매액이 증가하면 앞으로 쭉 활동할 가능성이 있는고객*/
+/*transpose 가능?*/
+proc sql;
+	create table DSAB.year_gumae as
+		select input(substr(sale_date,1,4),4.) as year
+					,sum(buy_amt) as buy
+					,client_no
+	from DSAB.TR2
+	group by year, client_no
+;
+quit;
+
+
+/*연령대*/
+proc sql;
+	create table DSAB.cust2 as
+		select *
+					,case when 1 <= 2018-input(substr(birth_date,1,4),4.) < 10 then '10세이하'
+							when 10 <= 2018-input(substr(birth_date,1,4),4.) < 20 then '10대'
+							when 20 <= 2018-input(substr(birth_date,1,4),4.) < 30 then '20대'
+							when 30 <= 2018-input(substr(birth_date,1,4),4.) < 40 then '30대'
+							when 40 <= 2018-input(substr(birth_date,1,4),4.) < 50 then '40대'
+							when 50 <= 2018-input(substr(birth_date,1,4),4.) < 60 then '50대'
+							when 60 <= 2018-input(substr(birth_date,1,4),4.) < 70 then '60대'
+							when 70 <= 2018-input(substr(birth_date,1,4),4.) < 80 then '70대'
+							when 80 <= 2018-input(substr(birth_date,1,4),4.)  then '80세이상'
+					end as age format=$8.
+	from DSAB.cust2
+;
+quit;
+
+/*연령대별 고객수*/
+proc sql;
+	create table DSAB.age_cust as
+		select age
+					,count(client_no) as cust
+	from DSAB.cust2
+	group by age
+;
+quit;
+proc print data=DSAB.age_cust;
+run;
+
+/*연령대별 구매금액*/
+proc sql;
+	create table DSAB.age_cust_amt as
+		select age
+					,sum(a2.buy_amt) as total_amt
+	from DSAB.cust2 as a1, DSAB.TR2 as a2
+	where a1.client_no = a2.client_no
+	group by age
+;
+quit;
+proc print data=DSAB.age_cust_amt;
+run;
+
+/*객단가*/
+
+/*TR2 + goods_new */
+proc sql;
+	create table DSAB.tr_goods as	
+		select a.goods_cd, buy_qty, client_no, sale_date, b.sale_price
+	from DSAB.TR2 as a
+	left join 
+	(select goods_cd as goods_cd_b, sale_price from DSAB.goods_new) as b
+	on a.goods_cd = b.goods_cd_b
+;
+quit;
+
+/*(-)값, 0값 제외(상품평균가격)한 년도별 객단가*/
+
+proc sql;
+	create table DSAB.avg_price as
+		select input(substr(sale_date,1,4),4.) as year
+					,avg(sale_price) as avg_sale_price
+					,sum(buy_qty)/count(distinct client_no) as avg_cust_qty
+					,calculated avg_sale_price * calculated avg_cust_qty as cust_trans format 10.2
+	from DSAB.tr_goods
+	where sale_price >0
+	group by year
+;
+quit;
+
+
+/*구매 수량 이상치 제외*/
+proc sql;
+	create table DSAB.qty_temp as
+		select client_no
+					,sum(buy_qty) / count(distinct client_no) as a1
+	from DSAB.TR2
+	group by client_no
+;
+quit;
+
+proc sql;
+	create table DSAB.qty_temp_max as
+		select client_no, buy_qty_max
+					,buy_qty as qty1
+					,monotonic() as a1
+	from ( select distinct client_no, buy_qty, max(buy_qty) as buy_qty_max
+				from DSAB.TR2
+				group by client_no
+				having buy_qty^=buy_qty_max )
+;
+quit;
+
+proc sql;
+	create table DSAB.qty_temp_min as
+		select client_no, buy_qty_min
+					,buy_qty as qty2
+					,monotonic() as a1
+	from ( select distinct client_no, buy_qty, min(buy_qty) as buy_qty_min
+				from DSAB.TR2
+				group by client_no
+				having buy_qty^=buy_qty_min )
+;
+quit;
+
+proc sql;
+	create table DSAB.qty_temp1 as
+		select *
+					, qty2-qty1 as diff
+	from DSAB.qty_temp_max(drop=buy_qty_max) as a1
+	left join DSAB.qty_temp_min(drop=buy_qty_min) as a2
+	on a1.client_no=a2.client_no and a1.a1=a2.a1
+;
+quit;
+
+proc sql;
+	create table DSAB.qty_temp2 as 
+		select *
+					,mean(diff) as avg_qty
+					,stderr(diff) as std_qty
+					,max(qty2) as max_qty
+					,min(qty1) as min_qty
+	from DSAB.qty_temp1
+	group by client_no
+;
+quit;
+
+proc sql;
+	create table DSAB.qty_temp3(drop= hm_qty) as
+		select distinct a1.client_no
+								,mean(diff) as diff2
+								,min_qty - max_qty as hm_qty
+								, case when calculated hm_qty<(avg_qty-std_qty) then 1
+											when (avg_qty-std_qty)<=calculated hm_qty<=(avg_qty+std_qty) then 2
+											when (avg_qty-(std_qty*2))<=calculated hm_qty<=(avg_qty+(std_qty*2)) then 3
+											when (avg_qty-(std_qty*3))<=calculated hm_qty<=(avg_qty+(std_qty*3)) then 4
+											when calculated hm_qty>(avg_qty-std_qty) then 5
+									end  as ital_exp
+	from DSAB.qty_temp2 as a1
+	left join DSAB.qty_temp as a2
+	on a1.client_no = a2.client_no
+	where (avg_qty - std_qty) <= diff <= (avg_qty + std_qty)
+	group by a1.client_no
+;
+quit;
+
+
+
+/*년도별 객단가*/
+proc sql;
+	create table DSAB.cust_trans_final as
+		select input(substr(sale_date,1,4),4.) as year
+					,round((sum(buy_amt) / COUNT(DISTINCT CLIENT_NO))) as  trans
+					
+	from dsab.tr2
+	group by year
+;
+quit;
+
+proc print data=DSAB.cust_trans_final;
+run;
+
+
+/*년도별 고객 거래건수 증감비율*/
+proc sql;
+	create table DSAB.tmp2013 as
+		select distinct client_no, count(sale_date) as sale_count
+							,input(substr(sale_date,1,4),4.) as year
+	from DSAB.tr2
+	group by client_no,year
+	having year=2013
+	order by sale_count desc
+;
+quit;
+proc sort data=DSAB.tmp2013;
+	by client_no;
+run;
+proc transpose data=DSAB.tmp2013 out=DSAB.tmp2013_1 ;
+	by client_no;
+	var sale_count;
+run;
+data DSAB.tmp2013_2;
+	set DSAB.tmp2013_1;
+	keep client_no col1;
+	rename col1 = year_2013;
+run;
+
+
+/*2014*/
+proc sql;
+	create table DSAB.tmp2014 as
+		select distinct client_no, count(sale_date) as sale_count
+							,input(substr(sale_date,1,4),4.) as year
+	from DSAB.tr2
+	group by client_no, year
+	having year=2014
+	order by sale_count desc
+;
+quit;
+proc sort data=DSAB.tmp2014;
+	by client_no;
+run;
+proc transpose data=DSAB.tmp2014 out=DSAB.tmp2014_1 ;
+	by client_no;
+	var sale_count;
+run;
+data DSAB.tmp2014_2;
+	set DSAB.tmp2014_1;
+	keep client_no col1;
+	rename col1 = year_2014;
+run;
+
+/*2015*/
+proc sql;
+	create table DSAB.tmp2015 as
+		select distinct client_no, count(sale_date) as sale_count
+							,input(substr(sale_date,1,4),4.) as year
+	from DSAB.tr2
+	group by client_no, year
+	having year=2015
+	order by sale_count desc
+;
+quit;
+proc sort data=DSAB.tmp2015;
+	by client_no;
+run;
+proc transpose data=DSAB.tmp2015 out=DSAB.tmp2015_1 ;
+	by client_no;
+	var sale_count;
+run;
+data DSAB.tmp2015_2;
+	set DSAB.tmp2015_1;
+	keep client_no col1;
+	rename col1 = year_2015;
+run;
+
+
+/*2016*/
+proc sql;
+	create table DSAB.tmp2016 as
+		select distinct client_no, count(sale_date) as sale_count
+							,input(substr(sale_date,1,4),4.) as year
+	from DSAB.tr2
+	group by client_no, year
+	having year=2016
+	order by sale_count desc
+;
+quit;
+proc sort data=DSAB.tmp2016;
+	by client_no;
+run;
+proc transpose data=DSAB.tmp2016 out=DSAB.tmp2016_1 ;
+	by client_no;
+	var sale_count;
+run;
+data DSAB.tmp2016_2;
+	set DSAB.tmp2016_1;
+	keep client_no col1;
+	rename col1 = year_2016;
+run;
+
+
+/*2017*/
+proc sql;
+	create table DSAB.tmp2017 as
+		select distinct client_no, count(sale_date) as sale_count
+							,input(substr(sale_date,1,4),4.) as year
+	from DSAB.tr2
+	group by client_no, year
+	having year=2017
+	order by sale_count desc
+;
+quit;
+proc sort data=DSAB.tmp2017;
+	by client_no;
+run;
+proc transpose data=DSAB.tmp2017 out=DSAB.tmp2017_1 ;
+	by client_no;
+	var sale_count;
+run;
+data DSAB.tmp2017_2;
+	set DSAB.tmp2017_1;
+	keep client_no col1;
+	rename col1 = year_2017;
+run;
+
+/*join*/
+proc sql;
+	create table DSAB.tmp_1314 as
+		select case when year_2014 - year_2013 > 0 then "증가" 
+							when year_2014 - year_2013 < 0 then "감소"
+							when year_2014 - year_2013 = 0 then "유지" 
+					end as diff_1314 format =$6.
+					, count(calculated diff_1314)
+	from DSAB.tmp2013_2 as a1, DSAB.tmp2014_2 as a2
+	where a1.client_no = a2.client_no 
+	group by diff_1314
+;
+quit;
+
+proc sql;
+	create table DSAB.tmp_1415 as
+		select case when year_2015 - year_2014 > 0 then "증가" 
+							when year_2015 - year_2014 < 0 then "감소"
+							when year_2015 - year_2014 = 0 then "유지" 
+					end as diff_1415 format =$6.
+					, count(calculated diff_1415)
+	from DSAB.tmp2014_2 as a1, DSAB.tmp2015_2 as a2
+	where a1.client_no = a2.client_no 
+	group by diff_1415
+;
+quit;
+
+proc sql;
+	create table DSAB.tmp_1516 as
+		select case when year_2016 - year_2015 > 0 then "증가" 
+							when year_2016 - year_2015 < 0 then "감소"
+							when year_2016 - year_2015 = 0 then "유지" 
+					end as diff_1516 format =$6.
+					, count(calculated diff_1516)
+	from DSAB.tmp2015_2 as a1, DSAB.tmp2016_2 as a2
+	where a1.client_no = a2.client_no 
+	group by diff_1516
+;
+quit;
+
+proc sql;
+	create table DSAB.tmp_1617 as
+		select case when year_2017 - year_2016 > 0 then "증가" 
+							when year_2017 - year_2016 < 0 then "감소"
+							when year_2017 - year_2016 = 0 then "유지" 
+					end as diff_1617 format =$6.
+					, count(calculated diff_1617)
+	from DSAB.tmp2016_2 as a1, DSAB.tmp2017_2 as a2
+	where a1.client_no = a2.client_no 
+	group by diff_1617
+;
+quit;
+
+proc print data=DSAB.tmp_1314;
+run;
+proc print data=DSAB.tmp_1415;
+run;
+proc print data=DSAB.tmp_1516;
+run;
+proc print data=DSAB.tmp_1617;
+run;
+

@@ -1,0 +1,38 @@
+/*馆前 前格1-1*/ 
+proc sql;
+create table dsab.return as
+select dtl_cd, buy_amt 
+from dsab.goods_new as a, dsab.tr_1 as b, dsab.merchandise as c
+where a.goods_cd = b.goods_cd and a.goods_dtl_cd = c.goods_dtl_cd
+;
+quit;
+-------------------------------------------------------------------------------------------------------------
+/*馆前 前格1-2*/ 
+proc sql outobs=200;
+select dtl_cd, count(*) as count
+from dsab.return
+where buy_amt < 0 
+group by dtl_cd
+;
+quit;
+-------------------------------------------------------------------------------------------------------------
+/*馆前 前格2-1*/ 
+proc sql;
+create table dsab.return2 as
+select dtl_cd, buy_amt 
+from dsab.goods_new as a, dsab.tr_2 as b, dsab.merchandise as c
+where a.goods_cd = b.goods_cd and a.goods_dtl_cd = c.goods_dtl_cd
+;
+quit;
+-------------------------------------------------------------------------------------------------------------
+/*馆前 前格2-2*/ 
+proc sql outobs= 10;
+create table dsab.test8 as
+select dtl_cd, count(*) as count
+from dsab.return2
+where buy_amt < 0 
+group by dtl_cd
+order by count desc
+;
+quit;
+
