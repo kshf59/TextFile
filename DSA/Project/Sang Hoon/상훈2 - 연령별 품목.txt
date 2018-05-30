@@ -1,0 +1,133 @@
+/*테이블조인*/
+PROC SQL;
+CREATE TABLE CLIENT AS
+SELECT A.CLIENT_NO, D.SHOP_CD, BIRTH_DATE, A.USE_CREDIT, SALE_DATE, DEL_YN, DEL_DATE, A.CREATE_DATE, GOODS_FUL_NM, SALE_PRICE, BUY_AMT,SHOP_NM
+FROM DSAB.CUST AS A
+FULL JOIN DSAB.TR_TOTAL AS B
+ON A.CLIENT_NO = B.CLIENT_NO
+FULL JOIN DSAB.GOODS_NEW AS C
+ON B.GOODS_CD = C.GOODS_CD
+FULL JOIN DSAB.STORE_DATA AS D
+ON A.SHOP_CD = D.SHOP_CD	
+ORDER BY SALE_DATE
+;
+QUIT;
+
+/*2014 전체조합원*/
+proc sql ;
+create table CLIENT2 as
+select CLIENT_NO, SHOP_CD, BIRTH_DATE, USE_CREDIT, SALE_DATE, DEL_YN, DEL_DATE, CREATE_DATE, GOODS_FUL_NM, SALE_PRICE, BUY_AMT,SHOP_NM,
+	     input(substr(create_date,1,4),5.) as create,
+		 input(substr(del_date,1,4),5.) as delete,
+		 input(substr(SALE_DATE,1,4),5.) as SALE
+from CLIENT
+where input(substr(create_date,1,4),5.) <> 0 and  
+	      input(substr(create_date,1,4),5.) < 2015 AND
+		  input(substr(create_date,1,4),5.) IS NOT NULL
+order by del_date desc, create desc
+;
+quit;	
+
+/*2014 전체조합원2*/
+
+proc sql ;
+create table CLIENT2_1 as
+select *
+from CLIENT2
+where  input(substr(del_date,1,4),5.) is null or 
+          input(substr(del_date,1,4),5.) >= 2015
+order by del_date desc, create desc
+;
+quit;	
+
+/*BIRTH_DATE NULL 제거*/
+PROC SQL;
+CREATE TABLE CLIENT2_2 AS
+SELECT *, INPUT(SUBSTR(BIRTH_DATE,1,4),4.) AS BIRTH
+FROM CLIENT2_1
+WHERE BIRTH_DATE IS NOT NULL AND INPUT(SUBSTR(BIRTH_DATE,1,4),4.) BETWEEN 1929 AND 1998
+ORDER BY BIRTH 
+;
+QUIT;
+
+/*2014 조합원 연령별*/
+PROC SQL;
+CREATE TABLE CLIENT2_3 AS
+SELECT *, CASE WHEN 1989 <= BIRTH <= 1998 THEN "20대"
+						WHEN 1979 <= BIRTH < 1989 THEN "3O대"
+						WHEN 1969 <= BIRTH < 1979 THEN "40대"
+						WHEN 1959 <= BIRTH < 1969 THEN "5O대"
+						WHEN 1949 <= BIRTH < 1959 THEN "60대"
+						WHEN 1939 <= BIRTH < 1949 THEN "70대"
+						WHEN 1929 <= BIRTH < 1939 THEN "80대"
+					    END AS AGE 
+FROM CLIENT2_2
+;
+QUIT;
+
+
+/*연령별 판매량, 판매액*/
+PROC SQL;
+CREATE TABLE GOODS AS
+SELECT AGE, GOODS_FUL_NM , COUNT(GOODS_FUL_NM) AS COUNT, SUM(BUY_AMT) AS BUY
+FROM CLIENT2_3
+GROUP BY AGE, GOODS_FUL_NM
+ORDER BY AGE, COUNT DESC
+;
+QUIT;
+
+/*연령별 판매량2*/
+proc sql;
+  create table GOODS2 as
+    select *,
+           MONOTONIC()  as var1,
+           MIN(MONOTONIC()) as var2,
+           CALCULATED VAR1 - CALCULATED VAR2 + 1 AS RANK
+    from GOODS
+    GROUP BY AGE;
+quit;
+
+/*연령별 판매량3*/
+proc sql;
+SELECT AGE, GOODS_FUL_NM, COUNT, RANK
+FROM GOODS2
+WHERE RANK IN (1,2,3)
+ORDER BY AGE
+;
+quit;
+
+/*연령별 판매액2*/
+proc sql;
+  create table GOODS3 as
+    select AGE, GOODS_FUL_NM, BUY
+    from GOODS
+	WHERE GOODS_FUL_NM IS NOT NULL
+    GROUP BY AGE
+    ORDER BY AGE, BUY DESC
+;
+quit;
+
+/*연령별 판매액3*/
+proc sql;
+  create table GOODS3 as
+    select *,
+           MONOTONIC()  as var1,
+           MIN(MONOTONIC()) as var2,
+           CALCULATED VAR1 - CALCULATED VAR2 + 1 AS RANK
+    from GOODS
+    GROUP BY AGE;
+quit;
+
+/*연령별 판매량4*/
+proc sql;
+SELECT AGE, GOODS_FUL_NM, BUY, RANK
+FROM GOODS3
+WHERE RANK IN (1,2,3)
+ORDER BY AGE
+;
+quit;
+
+
+
+
+

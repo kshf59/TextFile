@@ -23,4 +23,20 @@ order by sum desc
 ;
 quit;
 
+-------------------------------------------------------------------------------------------------------
+proc sql outobs=30;
+alter table dsab.test add modify char(5)
+;
+quit;
+
+proc sql outobs=30;
+update dsab.test set modify="두부" where sum=163498
+;
+quit;
+
+proc sql outobs=30;
+update dsab.test set modifty="두부" where sum=146896
+;
+quit;
+
 

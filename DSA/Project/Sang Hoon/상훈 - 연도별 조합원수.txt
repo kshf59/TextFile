@@ -1,0 +1,56 @@
+﻿/*2014년 조합원수 39184*/
+proc sql ;
+create table cu2 as
+select client_no,
+	     input(substr(create_date,1,4),5.) as create,
+		 input(substr(del_date,1,4),5.) as delete,
+		 count(*) as count
+from dsab.cu
+where input(substr(create_date,1,4),5.) <> 0 and  
+	      input(substr(create_date,1,4),5.) < 2015 and 
+		  input(substr(del_date,1,4),5.) is null or 
+		  input(substr(del_date,1,4),5.) >= 2015
+order by del_date desc, create asc
+;
+quit;
+
+/*2015년 조합원수 39955*/
+proc sql ;
+create table cu3 as
+select client_no,
+	     input(substr(create_date,1,4),5.) as create,
+		 input(substr(del_date,1,4),5.) as delete,
+		 count(*) as count
+from dsab.cu
+where input(substr(create_date,1,4),5.) <> 0 and  
+	      input(substr(create_date,1,4),5.) < 2016 and 
+		  input(substr(del_date,1,4),5.) is null or 
+		  input(substr(del_date,1,4),5.) >= 2016
+order by del_date desc, create asc
+;
+quit;
+
+/*2016년 조합원수 40764*/
+proc sql ;
+create table cu3 as
+select client_no,
+	     input(substr(create_date,1,4),5.) as create,
+		 input(substr(del_date,1,4),5.) as delete,
+		 count(*) as count
+from dsab.cu
+where input(substr(create_date,1,4),5.) <> 0 and  
+	      input(substr(create_date,1,4),5.) < 2017 and 
+		  input(substr(del_date,1,4),5.) is null or 
+		  input(substr(del_date,1,4),5.) >= 2017
+order by del_date desc, create asc
+;
+quit;
+2014년 조합원수 39184
+2015년 조합원수 39955
+2016년 조합원수 40764
+2014년 조합원 이용률 49 %
+2015년 조합원 이용률 51 %
+2016년 조합원 이용률 47 %
+2014년 조합원 탈퇴율 6 %
+2015년 조합원 탈퇴율 7 %
+2016년 조합원 탈퇴율 5 %

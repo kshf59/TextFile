@@ -20,25 +20,7 @@ order by sum desc
 quit;
 
 ---------------------------------------------------------------------------------------------------------
-/*2013년 10월 ~ 2017년 12월 월별 품목상세분류별 판매갯수1*/
-proc sql;
-create table dsab.item2 as
-select a.goods_dtl_cd, dtl_cd, buy_qty, buy_amt, input(substr(save_date,1,6),6.) as yyyymm
-from dsab.goods_new as a, dsab.tr_total as b, dsab.merchandise as c
-where a.goods_cd = b.goods_cd and a.goods_dtl_cd = c.goods_dtl_cd
-;
-quit;
-----------------------------------------------------------------------------------------------------------
-/*2013년 10월 ~ 2017년 12월 월별 품목상세분류별 판매갯수2*/
-proc sql;
-create table dsab.test3 as
-select yyyymm, dtl_cd, sum(buy_qty) as sum
-from dsab.item2
-group by goods_dtl_cd, yyyymm, dtl_cd
-having sum >= 0 and yyyymm between 201310 and 201312
-order by yyyymm
-;
-quit;
+
 
 
 

@@ -1,0 +1,23 @@
+
+/*칼럼 새로 추가*/
+proc sql;
+alter table dsab.goods_new2 add goods_dtl_cd2 char(20)
+;
+quit;
+
+
+/*두부 추가*/
+PROC SQL;
+UPDATE DSAB.GOODS_NEW2 SET GOODS_DTL_CD2 = "P10" WHERE GOODS_FUL_NM LIKE "%두부%"
+; 
+quit;
+/*콩나물 추가*/
+PROC SQL;
+UPDATE DSAB.GOODS_NEW2 SET GOODS_DTL_CD2 = "P10" WHERE GOODS_FUL_NM LIKE "콩나물"
+;
+QUIT;
+/*계란 추가*/
+PROC SQL;
+UPDATE DSAB.GOODS_NEW2 SET GOODS_DTL_CD2 = "P10" WHERE GOODS_FUL_NM LIKE "란"
+;
+QUIT;

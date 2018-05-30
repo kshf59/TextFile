@@ -9,12 +9,13 @@ select distinct a.client_no, (2018 - input(substr(birth_date,1,4),4.) + 1) as ag
 				when 40 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 50 then "40대"
 				when 50 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 60 then "50대"
 				when 60 <= (2018 - input(substr(birth_date,1,4),4.) + 1) < 70 then "60대"
-				when (2018 - input(substr(birth_date,1,4),4.) + 1) >= 70 then " 60대 이상"
-				end as age_g "연령대"
+				when (2018 - input(substr(birth_date,1,4),4.) + 1) >= 70 then "70대 이상"
+				end as age_g "연령대", input(substr(sale_date,1,4),4.) as date
 from dsab.cust as a, dsab.tr_1 as b
 where a.client_no = b.client_no
 group by a.client_no, age
-having age BETWEEN 10 AND 90
+having age BETWEEN 10 AND 90 and date BETWEEN 2014 AND 2016 
+order by age desc
 ;
 quit
 ;
@@ -26,11 +27,28 @@ alter table dsab.age drop column age;
 quit
 ;
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+2014 ~ 2016 연령대별 매출현황
 
 proc sql outobs= 100;
 select age_g, sum(buy) as sum "총구매금액" format=12.0
 from dsab.age
-where buy >= 0
+group by age_g
+;
+quit;
+
+2014 ~ 2016 연령대별 고객현황
+
+proc sql;
+create table dsab.age4 as
+select distinct client_no, age_g
+from dsab.age
+group by client_no, age_g
+;
+quit;
+
+proc sql;
+select age_g, count(*)
+from dsab.age4
 group by age_g
 ;
 quit;
